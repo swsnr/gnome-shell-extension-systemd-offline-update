@@ -58,12 +58,23 @@ class Destroyer {
    *
    * The object is destroyed when this destroyer gets destroyed.
    *
-   * @template {Destructible} T Type of object to destroy
+   * If `destructible` is a GObject binding automatically create a destructible
+   * which unbinds the binding.
+   *
+   * @template {Destructible | GObject.Binding} T Type of object to destroy
    * @param {T} destructible The object to track
    * @returns {T} `destructible`
    */
   add(destructible) {
-    this.#destructibles.push(destructible);
+    if (destructible instanceof GObject.Binding) {
+      this.#destructibles.push({
+        destroy() {
+          destructible.unbind();
+        },
+      });
+    } else {
+      this.#destructibles.push(destructible);
+    }
     return destructible;
   }
 
@@ -132,6 +143,18 @@ class IconThemeLoader {
 }
 
 /**
+ * The name of the file indicating a pending offline update.
+ */
+const UPDATE_FILENAME = "system-update";
+
+/**
+ * Directories in which the update file is created.
+ */
+const UPDATE_FILE_DIRECTORIES = ["/", "/etc"].map((d) =>
+  Gio.File.new_for_path(d),
+);
+
+/**
  * Asynchronously check whether a file exists.
  *
  * @param {Gio.File} file The file to check
@@ -156,6 +179,107 @@ const fileExists = async (file) => {
     throw error;
   }
 };
+
+const UpdateMonitor = GObject.registerClass(
+  {
+    Properties: {
+      "offline-update-pending": GObject.ParamSpec.boolean(
+        "offline-update-pending",
+        null,
+        null,
+        GObject.ParamFlags.READABLE,
+        false,
+      ),
+    },
+  },
+  /**
+   * Monitor for pending system updates.
+   *
+   * @implements Destructible
+   */
+  class UpdateMonitor extends GObject.Object {
+    _offlineUpdatePending = false;
+
+    /**
+     * @type {[Gio.FileMonitor, number][]}
+     */
+    _monitors = [];
+
+    /**
+     * @type {ConsoleLike}
+     */
+    _log;
+
+    /**
+     * Create a new monitor.
+     *
+     * @param {ConsoleLike} log The logger to use
+     */
+    constructor(log) {
+      super();
+
+      this._log = log;
+
+      for (const directory of UPDATE_FILE_DIRECTORIES) {
+        log.debug("Monitoring", directory.get_uri());
+        const monitor = directory.monitor(Gio.FileMonitorFlags.NONE, null);
+        const handlerId = monitor.connect(
+          "changed",
+          (_monitor, file, _otherFile, eventType) => {
+            log.debug("Changed", file.get_uri(), eventType);
+            let events = [
+              Gio.FileMonitorEvent.CREATED,
+              Gio.FileMonitorEvent.DELETED,
+            ];
+            if (
+              file.get_basename() === UPDATE_FILENAME &&
+              events.includes(eventType)
+            ) {
+              this.checkPendingUpdate();
+            }
+          },
+        );
+        this._monitors.push([monitor, handlerId]);
+      }
+
+      this.checkPendingUpdate();
+    }
+
+    destroy() {
+      for (const [monitor, handlerId] of this._monitors) {
+        monitor.disconnect(handlerId);
+        monitor.cancel();
+      }
+      this._monitors = [];
+    }
+
+    checkPendingUpdate() {
+      Promise.all(
+        UPDATE_FILE_DIRECTORIES.map((d) =>
+          fileExists(d.get_child(UPDATE_FILENAME)),
+        ),
+      )
+        .then((e) => {
+          this._offlineUpdatePending = e.some((e) => e);
+          this._log.log(
+            "Systemd offline update pending?",
+            this._offlineUpdatePending,
+          );
+          this.notify("offline-update-pending");
+        })
+        .catch((error) => {
+          this._log.error("Failed to update indicator:", error);
+        });
+    }
+
+    /**
+     * Whether an offline update is pending
+     */
+    get offline_update_pending() {
+      return this._offlineUpdatePending;
+    }
+  },
+);
 
 const UpdateIndicator = GObject.registerClass(
   /**
@@ -185,18 +309,6 @@ const UpdateIndicator = GObject.registerClass(
 );
 
 /**
- * The name of the file indicating a pending offline update.
- */
-const UPDATE_FILENAME = "system-update";
-
-/**
- * Directories in which the update file is created.
- */
-const UPDATE_FILE_DIRECTORIES = ["/", "/etc"].map((d) =>
-  Gio.File.new_for_path(d),
-);
-
-/**
  * Extension to indicate pending systemd offline updates.
  *
  * Show a small GNOME Shell indicator if there are pending systemd offline updates.
@@ -219,28 +331,6 @@ export default class SystemdOfflineUpdateExtension extends Extension {
   }
 
   /**
-   * Update the indicator according to whether updates exist.
-   *
-   * @param {InstanceType<UpdateIndicator>} indicator The indicator
-   */
-  #updateIndicator(indicator) {
-    const log = this.getLogger();
-    Promise.all(
-      UPDATE_FILE_DIRECTORIES.map((d) =>
-        fileExists(d.get_child(UPDATE_FILENAME)),
-      ),
-    )
-      .then((e) => {
-        const updatePending = e.some((e) => e);
-        log.log("Systemd offline update pending?", updatePending);
-        indicator.visible = updatePending;
-      })
-      .catch((error) => {
-        log.error("Failed to update indicator:", error);
-      });
-  }
-
-  /**
    * Initialize this extension.
    *
    * Create the indicator and add it to the status area.
@@ -249,44 +339,25 @@ export default class SystemdOfflineUpdateExtension extends Extension {
    */
   #initialize(destroyer) {
     const log = this.getLogger();
-
     const iconLoader = new IconThemeLoader(
       this.metadata.dir.get_child("icons"),
     );
 
+    log.log("Creating indicator for pending offline update");
     const indicator = destroyer.add(new UpdateIndicator(iconLoader));
-    indicator.visible = false;
+
+    log.log("Monitoring for pending offline update");
+    const monitor = destroyer.add(new UpdateMonitor(log));
+    destroyer.add(
+      monitor.bind_property(
+        "offline-update-pending",
+        indicator,
+        "visible",
+        GObject.BindingFlags.SYNC_CREATE,
+      ),
+    );
 
     Main.panel.addToStatusArea(this.metadata.uuid, indicator);
-
-    for (const directory of UPDATE_FILE_DIRECTORIES) {
-      log.debug("Monitoring", directory.get_uri());
-      const monitor = directory.monitor(Gio.FileMonitorFlags.NONE, null);
-      const signalId = monitor.connect(
-        "changed",
-        (_monitor, file, _otherFile, eventType) => {
-          log.debug("Changed", file.get_uri(), eventType);
-          let events = [
-            Gio.FileMonitorEvent.CREATED,
-            Gio.FileMonitorEvent.DELETED,
-          ];
-          if (
-            file.get_basename() === UPDATE_FILENAME &&
-            events.includes(eventType)
-          ) {
-            this.#updateIndicator(indicator);
-          }
-        },
-      );
-      destroyer.add({
-        destroy: () => {
-          monitor.cancel();
-          monitor.disconnect(signalId);
-        },
-      });
-    }
-
-    this.#updateIndicator(indicator);
   }
 
   /**
