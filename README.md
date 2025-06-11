@@ -1,6 +1,9 @@
 # Systemd Offline Update Indicator GNOME shell extension
 
-Show a GNOME shell indicator for pending systemd offline updates.
+Show a GNOME shell indicator for pending [systemd offline updates][1], via e.g. [pacman-offline].
+
+[1]: https://www.freedesktop.org/software/systemd/man/latest/systemd.offline-updates.html
+[pacman-offline]: https://github.com/eworm-de/pacman-offline
 
 ## Install
 
