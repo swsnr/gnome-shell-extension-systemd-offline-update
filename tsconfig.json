@@ -1,0 +1,11 @@
+{
+  "extends": "@tsconfig/strictest/tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "checkJs": true,
+    "target": "ES2022",
+    "module": "NodeNext",
+    "lib": ["ES2022"]
+  },
+  "include": ["eslint.config.mjs", "extension.js"]
+}
