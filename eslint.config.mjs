@@ -35,4 +35,7 @@ export default tseslint.config(
       "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
     },
   },
+  {
+    ignores: ["build/", "node_modules/"],
+  },
 );
