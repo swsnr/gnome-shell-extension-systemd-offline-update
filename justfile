@@ -25,7 +25,9 @@ build:
 
 # Pack the extension into GNOME extension ZIP file for installation.
 pack: clean build
-    gnome-extensions pack --force --extra-source ../icons --extra-source ../LICENSE build
+    gnome-extensions pack --force \
+        --extra-source ../icons --extra-source ../LICENSE --extra-source lib \
+        build
 
 # Sign the packed extension with my SSH key.
 sign: pack
