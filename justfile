@@ -1,17 +1,31 @@
+tsc := 'npx tsc'
+
 default:
     just --list
 
 test-all:
     npm ci
-    npm audit
     npx tsc --project .
     npx eslint .
     npx prettier --check .
+    npm audit
+
+# Format all files
+format:
+    npx prettier --write .
+
+# Remove build outputs
+clean:
+    rm -rf build systemd-offline-update@swsnr.de.shell-extension.zip*
+
+# Build the extension
+build:
+    {{tsc}} --project ./tsconfig.pack.json
+    cp -t build metadata.json
 
 # Pack the extension into GNOME extension ZIP file for installation.
-pack:
-    rm -f systemd-offline-update@swsnr.de.shell-extension.zip*
-    gnome-extensions pack --force --extra-source icons --extra-source LICENSE
+pack: clean build
+    gnome-extensions pack --force --extra-source ../icons --extra-source ../LICENSE build
 
 # Sign the packed extension with my SSH key.
 sign: pack

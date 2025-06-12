@@ -7,3 +7,6 @@
 
 # Editor things
 /.vscode/
+
+# Build output
+build/

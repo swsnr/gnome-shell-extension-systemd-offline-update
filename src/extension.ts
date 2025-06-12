@@ -4,10 +4,6 @@
 //
 // See https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
-// @ts-check
-
-/// <reference path="gnome-shell.d.ts" />
-
 import GObject from "gi://GObject";
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
@@ -16,42 +12,39 @@ import St from "gi://St";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 
-import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
-
-/**
- * @import {ConsoleLike} from "resource:///org/gnome/shell/extensions/extension.js"
- */
+import {
+  ConsoleLike,
+  Extension,
+} from "resource:///org/gnome/shell/extensions/extension.js";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
+
+/**
+ * A destructible thing.
+ */
+interface Destructible {
+  destroy(): void;
+}
 
 /**
  * A destroyer of things.
  *
  * Tracks destructible objects and destroys them all when it itself is destroyed.
- *
- * @typedef {{destroy: () => void}} Destructible
  */
 class Destroyer {
-  /**
-   * @type {ConsoleLike}
-   */
-  #logger;
+  #logger: ConsoleLike;
 
   /**
    * Create a new destroyer.
-   *
-   * @param {ConsoleLike} logger
    */
-  constructor(logger) {
+  constructor(logger: ConsoleLike) {
     this.#logger = logger;
   }
 
   /**
    * Registered destructibles.
-   *
-   * @type {Destructible[]}
    */
-  #destructibles = [];
+  #destructibles: Destructible[] = [];
 
   /**
    * Track a destructible object.
@@ -61,11 +54,10 @@ class Destroyer {
    * If `destructible` is a GObject binding automatically create a destructible
    * which unbinds the binding.
    *
-   * @template {Destructible | GObject.Binding} T Type of object to destroy
-   * @param {T} destructible The object to track
-   * @returns {T} `destructible`
+   * @param destructible The object to track
+   * @returns `destructible`
    */
-  add(destructible) {
+  add<T extends Destructible | GObject.Binding>(destructible: T): T {
     if (destructible instanceof GObject.Binding) {
       this.#destructibles.push({
         destroy() {
@@ -99,17 +91,15 @@ class Destroyer {
 class IconThemeLoader {
   /**
    * The theme to lookup our icons.
-   *
-   * @type {St.IconTheme}
    */
   #theme = St.IconTheme.new();
 
   /**
    * Create a new icon loader.
    *
-   * @param {Gio.File} iconDirectory The directory icons are contained in.
+   * @param iconDirectory The directory icons are contained in.
    */
-  constructor(iconDirectory) {
+  constructor(iconDirectory: Gio.File) {
     const iconPath = iconDirectory.get_path();
     if (iconPath === null) {
       throw new Error("Failed to get path of icon directory");
@@ -120,10 +110,10 @@ class IconThemeLoader {
   /**
    * Lookup an icon by name.
    *
-   * @param {string} name The name of the icon
-   * @returns {Gio.Icon} The icon
+   * @param name The name of the icon
+   * @returns The icon
    */
-  lookupIcon(name) {
+  lookupIcon(name: string): Gio.Icon {
     // We only include SVG icons currently, so we can just specify any size and
     // ignore the scale.  We force SVG to be on the safe side.
     const icon = this.#theme.lookup_icon(
@@ -157,9 +147,9 @@ const UPDATE_FILE_DIRECTORIES = ["/", "/etc"].map((d) =>
 /**
  * Asynchronously check whether a file exists.
  *
- * @param {Gio.File} file The file to check
+ * @param file The file to check
  */
-const fileExists = async (file) => {
+const fileExists = async (file: Gio.File): Promise<boolean> => {
   try {
     await file.query_info_async(
       Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
@@ -200,22 +190,16 @@ const UpdateMonitor = GObject.registerClass(
   class UpdateMonitor extends GObject.Object {
     _offlineUpdatePending = false;
 
-    /**
-     * @type {[Gio.FileMonitor, number][]}
-     */
-    _monitors = [];
+    _monitors: [Gio.FileMonitor, number][] = [];
 
-    /**
-     * @type {ConsoleLike}
-     */
-    _log;
+    _log: ConsoleLike;
 
     /**
      * Create a new monitor.
      *
-     * @param {ConsoleLike} log The logger to use
+     * @param log The logger to use
      */
-    constructor(log) {
+    constructor(log: ConsoleLike) {
       super();
 
       this._log = log;
@@ -227,7 +211,7 @@ const UpdateMonitor = GObject.registerClass(
           "changed",
           (_monitor, file, _otherFile, eventType) => {
             log.debug("Changed", file.get_uri(), eventType);
-            let events = [
+            const events = [
               Gio.FileMonitorEvent.CREATED,
               Gio.FileMonitorEvent.DELETED,
             ];
@@ -284,16 +268,14 @@ const UpdateMonitor = GObject.registerClass(
 const UpdateIndicator = GObject.registerClass(
   /**
    * An indicator for pending updates.
-   *
-   * @implements Destructible
    */
-  class UpdateIndicator extends PanelMenu.Button {
+  class UpdateIndicator extends PanelMenu.Button implements Destructible {
     /**
      * Create a new indicator for pending updates.
      *
-     * @param {IconThemeLoader} iconLoader Load icons.
+     * @param iconLoader Load icons.
      */
-    constructor(iconLoader) {
+    constructor(iconLoader: IconThemeLoader) {
       super(0, "Systemd Offline Update", true);
 
       this.add_child(
@@ -316,17 +298,13 @@ const UpdateIndicator = GObject.registerClass(
 export default class SystemdOfflineUpdateExtension extends Extension {
   /**
    * Destructible for the enabled extension, or null if the extension is not enabled.
-   *
-   * @type {Destructible | null}
    */
-  #enabledExtension = null;
+  #enabledExtension: Destructible | null = null;
 
   /**
    * The version of this extension, as extracted from metadata.
-   *
-   * @type {string}
    */
-  get version() {
+  get version(): string {
     return this.metadata["version-name"] ?? "n/a";
   }
 
@@ -335,9 +313,9 @@ export default class SystemdOfflineUpdateExtension extends Extension {
    *
    * Create the indicator and add it to the status area.
    *
-   * @param {Destroyer} destroyer Tor egister cleanup actions on.
+   * @param destroyer Tor egister cleanup actions on.
    */
-  #initialize(destroyer) {
+  #initialize(destroyer: Destroyer) {
     const log = this.getLogger();
     const iconLoader = new IconThemeLoader(
       this.metadata.dir.get_child("icons"),
@@ -364,10 +342,8 @@ export default class SystemdOfflineUpdateExtension extends Extension {
    * Enable this extension.
    *
    * If not already enabled, call `initialize` and keep track its allocated resources.
-   *
-   * @override
    */
-  enable() {
+  override enable() {
     const log = this.getLogger();
     if (!this.#enabledExtension) {
       log.log(`Enabling extension ${this.metadata.uuid} ${this.version}`);
@@ -393,7 +369,7 @@ export default class SystemdOfflineUpdateExtension extends Extension {
    *
    * @override
    */
-  disable() {
+  override disable() {
     this.getLogger().log(
       `Disabling extension ${this.metadata.uuid} ${this.version}`,
     );
