@@ -14,7 +14,7 @@ export class IconThemeLoader {
   /**
    * The theme to lookup our icons.
    */
-  #theme = St.IconTheme.new();
+  readonly #theme = St.IconTheme.new();
 
   /**
    * Create a new icon loader.

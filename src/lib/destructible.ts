@@ -23,7 +23,7 @@ export interface Destructible {
  * Tracks destructible objects and destroys them all when it itself is destroyed.
  */
 export class Destroyer {
-  #logger: ConsoleLike;
+  readonly #logger: ConsoleLike;
 
   /**
    * Create a new destroyer.

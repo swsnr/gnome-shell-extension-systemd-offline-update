@@ -13,8 +13,10 @@ import { DestructibleExtension, Destroyer } from "./lib/destructible.js";
 import { IconThemeLoader } from "./lib/icons.js";
 import { UpdateMonitor } from "./lib/updates.js";
 import { UpdateIndicator } from "./lib/indicator.js";
+import { PacmanOfflineBackend } from "./lib/backends/pacman-offline.js";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
+Gio._promisify(Gio.Subprocess.prototype, "wait_check_async");
 
 /**
  * Extension to indicate pending systemd offline updates.
@@ -29,15 +31,24 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
     );
 
     log.log("Creating indicator for pending offline update");
-    const indicator = destroyer.add(new UpdateIndicator(iconLoader));
+    const indicator = destroyer.add(new UpdateIndicator(iconLoader, log));
 
     log.log("Monitoring for pending offline update");
-    const monitor = destroyer.add(new UpdateMonitor(log));
+    const backends = [new PacmanOfflineBackend(log)];
+    const monitor = destroyer.add(new UpdateMonitor(log, backends));
     destroyer.add(
       monitor.bind_property(
         "offline-update-pending",
         indicator,
         "visible",
+        GObject.BindingFlags.SYNC_CREATE,
+      ),
+    );
+    destroyer.add(
+      monitor.bind_property(
+        "offline-update-backend",
+        indicator,
+        "offline-update-backend",
         GObject.BindingFlags.SYNC_CREATE,
       ),
     );

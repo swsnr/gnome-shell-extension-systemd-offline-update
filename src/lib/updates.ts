@@ -10,6 +10,8 @@ import Gio from "gi://Gio";
 
 import type { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js";
 
+import { OfflineUpdateBackend } from "./backend.js";
+
 /**
  * The name of the file indicating a pending offline update.
  */
@@ -58,6 +60,13 @@ export const UpdateMonitor = GObject.registerClass(
         GObject.ParamFlags.READABLE,
         false,
       ),
+      "offline-update-backend":
+        GObject.ParamSpec.jsobject<OfflineUpdateBackend | null>(
+          "offline-update-backend",
+          null,
+          null,
+          GObject.ParamFlags.READABLE,
+        ),
     },
   },
   /**
@@ -68,19 +77,24 @@ export const UpdateMonitor = GObject.registerClass(
   class UpdateMonitor extends GObject.Object {
     _offlineUpdatePending = false;
 
+    _backend: OfflineUpdateBackend | null = null;
+
     _monitors: [Gio.FileMonitor, number][] = [];
 
-    _log: ConsoleLike;
+    readonly _backends: readonly OfflineUpdateBackend[] = [];
+
+    readonly _log: ConsoleLike;
 
     /**
      * Create a new monitor.
      *
      * @param log The logger to use
      */
-    constructor(log: ConsoleLike) {
+    constructor(log: ConsoleLike, backends: readonly OfflineUpdateBackend[]) {
       super();
 
       this._log = log;
+      this._backends = backends;
 
       for (const directory of UPDATE_FILE_DIRECTORIES) {
         log.debug("Monitoring", directory.get_uri());
@@ -139,14 +153,43 @@ export const UpdateMonitor = GObject.registerClass(
           this._offlineUpdatePending,
         );
         this.notify("offline-update-pending");
+
+        if (updateFile != null) {
+          const backends = await Promise.all(
+            this._backends.map(async (backend) => {
+              try {
+                return (await backend.isSupported(updateFile)) ? backend : null;
+              } catch (error) {
+                this._log.warn("Backend failed", backend.name, error);
+                return null;
+              }
+            }),
+          );
+          this._backend = backends.find((backend) => backend != null) ?? null;
+          this._log.log(
+            "Found backend for offline update",
+            this._backend?.name,
+          );
+          this.notify("offline-update-backend");
+        } else {
+          this._backend = null;
+          this.notify("offline-update-backend");
+        }
       }
     }
 
     /**
      * Whether an offline update is pending
      */
-    get offline_update_pending() {
+    get offline_update_pending(): boolean {
       return this._offlineUpdatePending;
+    }
+
+    /**
+     * A backend to control a pending offline update.
+     */
+    get offline_update_backend(): OfflineUpdateBackend | null {
+      return this._backend;
     }
   },
 );

@@ -3,12 +3,16 @@ tsc := 'npx tsc'
 default:
     just --list
 
-test-all:
-    npm ci
+typecheck:
     npx tsc --project .
+
+lint:
     npx eslint .
     npx prettier --check .
     npm audit
+
+test-all: && typecheck lint
+    npm ci
 
 # Format all files
 format:
