@@ -116,22 +116,30 @@ export const UpdateMonitor = GObject.registerClass(
     }
 
     checkPendingUpdate() {
-      Promise.all(
-        UPDATE_FILE_DIRECTORIES.map((d) =>
-          fileExists(d.get_child(UPDATE_FILENAME)),
-        ),
-      )
-        .then((e) => {
-          this._offlineUpdatePending = e.some((e) => e);
-          this._log.log(
-            "Systemd offline update pending?",
-            this._offlineUpdatePending,
-          );
-          this.notify("offline-update-pending");
-        })
-        .catch((error) => {
-          this._log.error("Failed to update indicator:", error);
-        });
+      this.checkPendingUpdateAsync().catch((error) => {
+        this._log.error("Failed to check for pending update:", error);
+      });
+    }
+
+    private async checkPendingUpdateAsync() {
+      const updateFile = (
+        await Promise.all(
+          UPDATE_FILE_DIRECTORIES.map(async (directory) => {
+            const file = directory.get_child(UPDATE_FILENAME);
+            return (await fileExists(file)) ? file : null;
+          }),
+        )
+      ).find((file) => file !== null);
+
+      const updatePending = updateFile != null;
+      if (this._offlineUpdatePending !== updatePending) {
+        this._offlineUpdatePending = updatePending;
+        this._log.log(
+          "Systemd offline update pending?",
+          this._offlineUpdatePending,
+        );
+        this.notify("offline-update-pending");
+      }
     }
 
     /**
