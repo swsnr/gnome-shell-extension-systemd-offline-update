@@ -2,7 +2,7 @@
   "name": "Systemd Offline Update Indicator",
   "uuid": "systemd-offline-update@swsnr.de",
   "description": "Show an indicator for pending systemd offline updates.",
-  "version-name": "48.1",
+  "version-name": "48.2",
   "url": "https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update",
   "shell-version": ["48"]
 }
