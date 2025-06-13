@@ -14,6 +14,7 @@ import { IconThemeLoader } from "./lib/icons.js";
 import { UpdateMonitor } from "./lib/offline-update/monitor.js";
 import { UpdateIndicator } from "./lib/indicator.js";
 import { PacmanOfflineBackend } from "./lib/offline-update/backends/pacman-offline.js";
+import { OfflineUpdateController } from "./lib/offline-update/controller.js";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
 Gio._promisify(Gio.Subprocess.prototype, "wait_check_async");
@@ -30,8 +31,12 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
       this.metadata.dir.get_child("icons"),
     );
 
+    const controller = new OfflineUpdateController(log);
+
     log.log("Creating indicator for pending offline update");
-    const indicator = destroyer.add(new UpdateIndicator(iconLoader, log));
+    const indicator = destroyer.add(
+      new UpdateIndicator(iconLoader, controller),
+    );
 
     log.log("Monitoring for pending offline update");
     const backends = [new PacmanOfflineBackend(log)];
@@ -47,8 +52,8 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
     destroyer.add(
       monitor.bind_property(
         "offline-update-backend",
-        indicator,
-        "offline-update-backend",
+        controller,
+        "backend",
         GObject.BindingFlags.SYNC_CREATE,
       ),
     );
