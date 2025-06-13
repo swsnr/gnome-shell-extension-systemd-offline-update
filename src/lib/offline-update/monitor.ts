@@ -10,7 +10,7 @@ import Gio from "gi://Gio";
 import type { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import { OfflineUpdateBackend } from "./backend.js";
-import { fileExists } from "./io.js";
+import { fileExists } from "../io.js";
 
 /**
  * The name of the file indicating a pending offline update.

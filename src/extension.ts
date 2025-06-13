@@ -11,9 +11,9 @@ import * as Main from "resource:///org/gnome/shell/ui/main.js";
 
 import { DestructibleExtension, Destroyer } from "./lib/destructible.js";
 import { IconThemeLoader } from "./lib/icons.js";
-import { UpdateMonitor } from "./lib/updates.js";
+import { UpdateMonitor } from "./lib/offline-update/monitor.js";
 import { UpdateIndicator } from "./lib/indicator.js";
-import { PacmanOfflineBackend } from "./lib/backends/pacman-offline.js";
+import { PacmanOfflineBackend } from "./lib/offline-update/backends/pacman-offline.js";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
 Gio._promisify(Gio.Subprocess.prototype, "wait_check_async");

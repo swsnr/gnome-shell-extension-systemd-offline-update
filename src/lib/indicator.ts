@@ -17,7 +17,7 @@ import { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js
 
 import { Destructible } from "./destructible.js";
 import { IconThemeLoader } from "./icons.js";
-import { OfflineUpdateBackend } from "./backend.js";
+import { OfflineUpdateBackend } from "./offline-update/backend.js";
 
 export const UpdateIndicator = GObject.registerClass(
   {
