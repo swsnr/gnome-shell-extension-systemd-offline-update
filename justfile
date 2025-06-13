@@ -50,7 +50,7 @@ release VERSION: _ensure-repo-clean
     git add metadata.json
     git commit -m 'Release {{VERSION}}'
     git tag -a -s 'v{{VERSION}}'
-    just pack
+    just pack sign
     echo "Upload zip to https://extensions.gnome.org"
     echo "Push and create a new codeberg release at https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update/releases/new?tag=v{{VERSION}}"
 
