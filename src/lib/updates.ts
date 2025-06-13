@@ -5,12 +5,12 @@
 // See https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 import GObject from "gi://GObject";
-import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 
 import type { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import { OfflineUpdateBackend } from "./backend.js";
+import { fileExists } from "./io.js";
 
 /**
  * The name of the file indicating a pending offline update.
@@ -23,32 +23,6 @@ const UPDATE_FILENAME = "system-update";
 const UPDATE_FILE_DIRECTORIES = ["/", "/etc"].map((d) =>
   Gio.File.new_for_path(d),
 );
-
-/**
- * Asynchronously check whether a file exists.
- *
- * @param file The file to check
- */
-const fileExists = async (file: Gio.File): Promise<boolean> => {
-  try {
-    await file.query_info_async(
-      Gio.FILE_ATTRIBUTE_STANDARD_TYPE,
-      // We care for the file itself not its symlink target
-      Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
-      GLib.PRIORITY_DEFAULT,
-      null,
-    );
-    return true;
-  } catch (error) {
-    if (
-      error instanceof GLib.Error &&
-      error.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)
-    ) {
-      return false;
-    }
-    throw error;
-  }
-};
 
 export const UpdateMonitor = GObject.registerClass(
   {
