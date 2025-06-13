@@ -41,7 +41,7 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
     log.log("Monitoring for pending offline update");
     const backends = [new PacmanOfflineBackend(log)];
     const monitor = destroyer.add(new UpdateMonitor(log, backends));
-    destroyer.add(
+    destroyer.addBinding(
       monitor.bind_property(
         "offline-update-pending",
         indicator,
@@ -49,12 +49,27 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
         GObject.BindingFlags.SYNC_CREATE,
       ),
     );
-    destroyer.add(
+    destroyer.addBinding(
       monitor.bind_property(
         "offline-update-backend",
         controller,
         "backend",
         GObject.BindingFlags.SYNC_CREATE,
+      ),
+    );
+
+    log.log("Monitoring for low-power condition");
+    const powerMonitor = Gio.PowerProfileMonitor.dup_default();
+    destroyer.addSignal(
+      powerMonitor,
+      powerMonitor.connect(
+        "notify::power-saver-enabled",
+        (monitor: Gio.PowerProfileMonitor) => {
+          if (monitor.get_power_saver_enabled()) {
+            log.log("Cancelling pending update due to low-power");
+            controller.cancelPendingUpdate();
+          }
+        },
       ),
     );
 

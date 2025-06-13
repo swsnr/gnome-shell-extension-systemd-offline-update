@@ -42,23 +42,46 @@ export class Destroyer {
    *
    * The object is destroyed when this destroyer gets destroyed.
    *
-   * If `destructible` is a GObject binding automatically create a destructible
-   * which unbinds the binding.
-   *
    * @param destructible The object to track
    * @returns `destructible`
    */
-  add<T extends Destructible | GObject.Binding>(destructible: T): T {
-    if (destructible instanceof GObject.Binding) {
-      this.#destructibles.push({
-        destroy() {
-          destructible.unbind();
-        },
-      });
-    } else {
-      this.#destructibles.push(destructible);
-    }
+  add<T extends Destructible>(destructible: T): T {
+    this.#destructibles.push(destructible);
     return destructible;
+  }
+
+  /**
+   * Track a property binding for destruction.
+   *
+   * Unbind the `binding` when this destroyer gets destroyed.
+   *
+   * @param binding The binding to track
+   * @returns `binding`
+   */
+  addBinding(binding: GObject.Binding): GObject.Binding {
+    this.add({
+      destroy() {
+        binding.unbind();
+      },
+    });
+    return binding;
+  }
+
+  /**
+   * Track a connected signal for disconnection upon destruction.
+   *
+   * Disconnect the signal handler with the given `handlerId` from the given
+   * object when this destroyer gets destroyed.
+   *
+   * @param obj The object the signal was connected on and needs to be disconnected on
+   * @param handlerId The ID of the connected signal handler, as returned by `connect()`
+   */
+  addSignal(obj: GObject.Object, handlerId: number) {
+    this.add({
+      destroy() {
+        obj.disconnect(handlerId);
+      },
+    });
   }
 
   /**
