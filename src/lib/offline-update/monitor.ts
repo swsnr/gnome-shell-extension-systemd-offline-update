@@ -104,7 +104,7 @@ export const UpdateMonitor = GObject.registerClass(
     }
 
     checkPendingUpdate() {
-      this.checkPendingUpdateAsync().catch((error) => {
+      this.checkPendingUpdateAsync().catch((error: unknown) => {
         this._log.error("Failed to check for pending update:", error);
       });
     }

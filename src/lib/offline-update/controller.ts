@@ -46,7 +46,7 @@ export const OfflineUpdateController = GObject.registerClass(
     cancelPendingUpdate() {
       if (this._backend) {
         this._log.log("Cancelling pending offline update");
-        this._backend.cancel().catch((error) => {
+        this._backend.cancel().catch((error: unknown) => {
           this._log.warn("Failed to cancel offline update", error);
         });
       } else {
