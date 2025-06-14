@@ -43,12 +43,19 @@ export const OfflineUpdateController = GObject.registerClass(
       this._backend = backend;
     }
 
-    async cancelPendingUpdate() {
+    /**
+     * Cancel a pending update.
+     *
+     * @returns `true` if the update was cancelled, `false` otherwise
+     */
+    async cancelPendingUpdate(): Promise<boolean> {
       if (this._backend) {
         this._log.log("Cancelling pending offline update");
         await this._backend.cancel();
+        return true;
       } else {
         this._log.log("No backend for offline update");
+        return false;
       }
     }
   },

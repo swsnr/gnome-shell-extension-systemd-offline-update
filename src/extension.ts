@@ -80,9 +80,16 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
         (monitor: Gio.PowerProfileMonitor) => {
           if (monitor.get_power_saver_enabled()) {
             log.log("Cancelling pending update due to low-power");
-            controller.cancelPendingUpdate().catch((error: unknown) => {
-              notifications.notifyCancelFailed(error);
-            });
+            controller
+              .cancelPendingUpdate()
+              .then((cancelled) => {
+                if (cancelled) {
+                  notifications.notifyUpdateCancelledOnLowPower();
+                }
+              })
+              .catch((error: unknown) => {
+                notifications.notifyCancelFailed(error);
+              });
           }
         },
       ),

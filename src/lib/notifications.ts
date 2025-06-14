@@ -71,6 +71,20 @@ export class Notifications {
   }
 
   /**
+   * Notify that a pending update was cancelled because the system is in power save.
+   */
+  notifyUpdateCancelledOnLowPower(): void {
+    // Destroy any current notification about a new update.
+    this.#updateNotification?.destroy();
+    this.#updateNotification = null;
+    this.#showNotification({
+      title: _("Update cancelled"),
+      body: _("Update cancelled because the system is in power save mode"),
+      urgency: MessageTray.Urgency.NORMAL,
+    });
+  }
+
+  /**
    * Notify that cancelling an offline update failed.
    *
    * @param error The error which occurred
