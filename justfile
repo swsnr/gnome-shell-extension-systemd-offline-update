@@ -51,8 +51,9 @@ release VERSION: _ensure-repo-clean
     git commit -m 'Release {{VERSION}}'
     git tag -a -s 'v{{VERSION}}'
     just pack sign
-    echo "Upload zip to https://extensions.gnome.org"
-    echo "Push and create a new codeberg release at https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update/releases/new?tag=v{{VERSION}}"
+    git push --follow-tags
+    echo "Upload zip at https://extensions.gnome.org/upload/"
+    echo "Create a new codeberg release at https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update/releases/new?tag=v{{VERSION}}"
 
 # Install the extension for this user
 install-user: pack
