@@ -31,6 +31,7 @@ export const UpdateIndicator = GObject.registerClass(
      *
      * @param iconLoader Load icons.
      * @param controller Control offline updates
+     * @param notifications Notifications for this extension
      */
     constructor(
       iconLoader: IconThemeLoader,

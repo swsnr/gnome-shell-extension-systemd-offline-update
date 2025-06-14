@@ -32,7 +32,7 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
       this.metadata.dir.get_child("icons"),
     );
 
-    const notifications = new Notifications(log);
+    const notifications = new Notifications(log, iconLoader);
     const controller = new OfflineUpdateController(log);
 
     log.log("Creating indicator for pending offline update");
@@ -57,6 +57,17 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
         controller,
         "backend",
         GObject.BindingFlags.SYNC_CREATE,
+      ),
+    );
+    destroyer.addSignal(
+      monitor,
+      monitor.connect(
+        "notify::offline-update-pending",
+        (monitor: UpdateMonitor) => {
+          if (monitor.offline_update_pending) {
+            notifications.notifyNewPendingUpdate();
+          }
+        },
       ),
     );
 
