@@ -49,7 +49,7 @@ pot:
 
 # Pack the extension into GNOME extension ZIP file for installation.
 pack: clean build
-    gnome-extensions pack --force \
+    gnome-extensions pack --force --podir=../po \
         --extra-source ../icons --extra-source ../LICENSE --extra-source lib \
         build
 
