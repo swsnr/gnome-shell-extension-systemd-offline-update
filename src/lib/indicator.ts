@@ -17,6 +17,7 @@ import {
 import { Destructible } from "./destructible.js";
 import { IconThemeLoader } from "./icons.js";
 import { OfflineUpdateController } from "./offline-update/controller.js";
+import { Notifications } from "./notifications.js";
 
 export const UpdateIndicator = GObject.registerClass(
   /**
@@ -34,6 +35,7 @@ export const UpdateIndicator = GObject.registerClass(
     constructor(
       iconLoader: IconThemeLoader,
       controller: OfflineUpdateController,
+      notifications: Notifications,
     ) {
       super(0, "Systemd Offline Update", false);
       if (!(this.menu instanceof PopupMenu)) {
@@ -50,7 +52,9 @@ export const UpdateIndicator = GObject.registerClass(
       const operations = new PopupMenuSection();
       this._cancelItem = new PopupMenuItem(_("Cancel pending update"));
       this._cancelItem.connect("activate", () => {
-        controller.cancelPendingUpdate();
+        controller.cancelPendingUpdate().catch((error: unknown) => {
+          notifications.notifyCancelFailed(error);
+        });
       });
       operations.addMenuItem(this._cancelItem);
       this.menu.addMenuItem(operations);
