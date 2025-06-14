@@ -34,6 +34,8 @@ export class Notifications {
   get #notificationSource(): MessageTray.Source {
     if (this.#_notificationSource == null) {
       const source = new MessageTray.Source({
+        // Translators: Translate according to systemd.offline-updates(7)
+        // If this manpage isn't translated to your language, leave as is.
         title: _("Systemd Offline Update"),
         icon: this.#iconLoader.lookupIcon("up-arrow-in-a-star-symbolic"),
         policy: new MessageTray.NotificationGenericPolicy(),

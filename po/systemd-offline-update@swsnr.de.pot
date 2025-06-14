@@ -20,35 +20,37 @@ msgstr ""
 msgid "Cancel pending update"
 msgstr ""
 
-#: src/lib/notifications.ts:37
+#. Translators: Translate according to systemd.offline-updates(7)
+#. If this manpage isn't translated to your language, leave as is.
+#: src/lib/notifications.ts:39
 msgid "Systemd Offline Update"
 msgstr ""
 
-#: src/lib/notifications.ts:63
+#: src/lib/notifications.ts:65
 msgid "New updates available!"
 msgstr ""
 
-#: src/lib/notifications.ts:64
+#: src/lib/notifications.ts:66
 msgid "Reboot to apply updates"
 msgstr ""
 
-#: src/lib/notifications.ts:81
+#: src/lib/notifications.ts:83
 msgid "Update cancelled"
 msgstr ""
 
-#: src/lib/notifications.ts:82
+#: src/lib/notifications.ts:84
 msgid "Update cancelled because the system is in power save mode"
 msgstr ""
 
-#: src/lib/notifications.ts:97
+#: src/lib/notifications.ts:99
 #, javascript-format
 msgid "Error: %s"
 msgstr ""
 
-#: src/lib/notifications.ts:99
+#: src/lib/notifications.ts:101
 msgid "No details available."
 msgstr ""
 
-#: src/lib/notifications.ts:102
+#: src/lib/notifications.ts:104
 msgid "Failed to cancel pending offline update"
 msgstr ""
