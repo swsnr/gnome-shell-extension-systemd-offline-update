@@ -59,8 +59,7 @@ export class Notifications {
       return;
     }
     this.#log.info("New offline update pending");
-    const notification = new MessageTray.Notification({
-      source: this.#notificationSource,
+    const notification = this.#showNotification({
       title: _("New updates available!"),
       body: _("Reboot to apply updates"),
       urgency: MessageTray.Urgency.NORMAL,
@@ -69,7 +68,6 @@ export class Notifications {
       this.#updateNotification = null;
     });
     this.#updateNotification = notification;
-    this.#notificationSource.addNotification(notification);
   }
 
   /**
@@ -80,12 +78,27 @@ export class Notifications {
   notifyCancelFailed(error: unknown): void {
     this.#log.warn("Failed to cancel pending offline update:", error);
 
-    let details;
+    let body;
     if (error instanceof GLib.Error || error instanceof Error) {
-      details = _("Error: %s").format(error.message);
+      body = _("Error: %s").format(error.message);
     } else {
-      details = _("No details available.");
+      body = _("No details available.");
     }
-    Main.notifyError(_("Failed to cancel pending offline update"), details);
+    this.#showNotification({
+      title: _("Failed to cancel pending offline update"),
+      body,
+      isTransient: true,
+    });
+  }
+
+  #showNotification(
+    props: MessageTray.Notification.ConstructorProps,
+  ): MessageTray.Notification {
+    const notification = new MessageTray.Notification({
+      source: this.#notificationSource,
+      ...props,
+    });
+    this.#notificationSource.addNotification(notification);
+    return notification;
   }
 }
