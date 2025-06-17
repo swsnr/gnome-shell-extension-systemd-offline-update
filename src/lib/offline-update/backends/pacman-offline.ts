@@ -9,7 +9,35 @@ import Gio from "gi://Gio";
 
 import { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js";
 
-import { OfflineUpdateBackend } from "../backend.js";
+import { OfflineUpdateBackend, Package } from "../backend.js";
+
+const IMPORTANT_PACKAGES: ReadonlySet<string> = new Set([
+  "linux",
+  "linux-lts",
+  "linux-zen",
+  "linux-hardened",
+  "mkinitcpio",
+  "systemd",
+  "gdm",
+  "gnome-shell",
+]);
+
+const parsePackage = (line: string): Package => {
+  const match = /^([^ ]+) ([^ ]+) -> ([^ ]+)$/.exec(line);
+  if (!match) {
+    throw new Error(`Failed to parse version from line: ${line}`);
+  }
+  const [_, name, oldVersion, newVersion] = match;
+  if (!(name && oldVersion && newVersion)) {
+    throw new Error(`Failed to extract data from line: ${line}`);
+  }
+  return {
+    name,
+    oldVersion,
+    newVersion,
+    important: IMPORTANT_PACKAGES.has(name),
+  };
+};
 
 export class PacmanOfflineBackend implements OfflineUpdateBackend {
   readonly #log: ConsoleLike;
@@ -48,5 +76,17 @@ export class PacmanOfflineBackend implements OfflineUpdateBackend {
     if (!(await process.wait_check_async(null))) {
       throw new Error("Command pacman-offline -a failed!");
     }
+  }
+
+  async packages(): Promise<Package[]> {
+    const cmd = ["pacman", "-Qu", "--color=never"];
+    this.#log.log("Running command", cmd);
+
+    const process = Gio.Subprocess.new(cmd, Gio.SubprocessFlags.STDOUT_PIPE);
+    const [output, _] = await process.communicate_utf8_async(null, null);
+    return output
+      .split("\n")
+      .filter((l) => !!l)
+      .map(parsePackage);
   }
 }

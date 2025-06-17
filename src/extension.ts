@@ -19,6 +19,7 @@ import { Notifications } from "./lib/notifications.js";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
 Gio._promisify(Gio.Subprocess.prototype, "wait_check_async");
+Gio._promisify(Gio.Subprocess.prototype, "communicate_utf8_async");
 
 /**
  * Extension to indicate pending systemd offline updates.
