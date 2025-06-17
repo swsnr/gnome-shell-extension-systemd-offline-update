@@ -26,6 +26,25 @@ export default tseslint.config(
   {
     rules: {
       "no-console": "error",
+      "no-restricted-globals": [
+        "error",
+        // Forbid gjs gettext globals, we have to use extension gettext to make
+        // sure it gets messages from the right domain
+        {
+          name: "_",
+          message:
+            'Do not use global gjs gettext; use import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js"',
+        },
+        {
+          name: "C_",
+          message:
+            'Do not use global gjs gettext; use import { pgettext as C_ } from "resource:///org/gnome/shell/extensions/extension.js"',
+        },
+        {
+          name: "N_",
+          message: "Do not use N_",
+        },
+      ],
       // Typescript does this
       "no-undef": "off",
       "@typescript-eslint/no-unused-vars": "off",
