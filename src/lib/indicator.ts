@@ -13,6 +13,7 @@ import {
   PopupMenuItem,
   PopupMenuSection,
 } from "resource:///org/gnome/shell/ui/popupMenu.js";
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import { Destructible } from "./destructible.js";
 import { IconThemeLoader } from "./icons.js";
