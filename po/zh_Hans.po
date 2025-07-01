@@ -1,0 +1,59 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Sebastian Wiesner <sebastian@swsnr.de>
+# This file is distributed under the same license as the systemd-offline-update@swsnr.de package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: systemd-offline-update@swsnr.de\n"
+"Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2025-07-01 07:58+0000\n"
+"Last-Translator: Outbreak2096 <outbreak2096@noreply.codeberg.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://"
+"translate.codeberg.org/projects/systemd-offline-update-swsnr-de/"
+"systemd-offline-update-swsnr-de/zh_Hans/>\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.11.4\n"
+
+#: src/lib/indicator.ts:54
+msgid "Cancel pending update"
+msgstr "取消待处理的更新"
+
+#. Translators: Translate according to systemd.offline-updates(7)
+#. If this manpage isn't translated to your language, leave as is.
+#: src/lib/notifications.ts:39
+msgid "Systemd Offline Update"
+msgstr "Systemd 离线更新"
+
+#: src/lib/notifications.ts:65
+msgid "New updates available!"
+msgstr "有新更新可用！"
+
+#: src/lib/notifications.ts:66
+msgid "Reboot to apply updates"
+msgstr "重启以应用更新"
+
+#: src/lib/notifications.ts:83
+msgid "Update cancelled"
+msgstr "更新已取消"
+
+#: src/lib/notifications.ts:84
+msgid "Update cancelled because the system is in power save mode"
+msgstr "由于系统处于省电模式，更新已取消"
+
+#: src/lib/notifications.ts:99
+#, javascript-format
+msgid "Error: %s"
+msgstr "错误：%s"
+
+#: src/lib/notifications.ts:101
+msgid "No details available."
+msgstr "暂无详细信息。"
+
+#: src/lib/notifications.ts:104
+msgid "Failed to cancel pending offline update"
+msgstr "无法取消待处理的离线更新"
