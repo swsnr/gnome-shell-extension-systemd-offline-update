@@ -9,8 +9,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "PO-Revision-Date: 2025-06-15 10:58+0000\n"
 "Last-Translator: Sebastian Wiesner <sebastian@swsnr.de>\n"
-"Language-Team: German <https://translate.codeberg.org/projects/"
-"systemd-offline-update-swsnr-de/systemd-offline-update-swsnr-de/de/>\n"
+"Language-Team: German <https://translate.codeberg.org/projects/systemd-"
+"offline-update-swsnr-de/systemd-offline-update-swsnr-de/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -18,9 +18,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.11.4\n"
 
-#: src/lib/indicator.ts:54
+#: src/lib/indicator.ts:60
 msgid "Cancel pending update"
 msgstr "Ausstehende Aktualisierung abbrechen"
+
+#: src/lib/indicator.ts:102
+#, javascript-format
+msgid "+ one more package"
+msgid_plural "+ %s more packages"
+msgstr[0] ""
+msgstr[1] ""
 
 #. Translators: Translate according to systemd.offline-updates(7)
 #. If this manpage isn't translated to your language, leave as is.
