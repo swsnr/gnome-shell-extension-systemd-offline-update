@@ -15,10 +15,18 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: src/lib/indicator.ts:54
+#: src/lib/indicator.ts:60
 msgid "Cancel pending update"
 msgstr ""
+
+#: src/lib/indicator.ts:102
+#, javascript-format
+msgid "+ one more package"
+msgid_plural "+ %s more packages"
+msgstr[0] ""
+msgstr[1] ""
 
 #. Translators: Translate according to systemd.offline-updates(7)
 #. If this manpage isn't translated to your language, leave as is.

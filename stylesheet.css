@@ -1,0 +1,5 @@
+.offline-update-important-update {
+  /* Red 2, see https://developer.gnome.org/hig/reference/palette.html */
+  color: #ed333b;
+  font-weight: bold;
+}

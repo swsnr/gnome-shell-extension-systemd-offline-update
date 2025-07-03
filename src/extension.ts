@@ -71,6 +71,22 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
         },
       ),
     );
+    destroyer.addSignal(
+      controller,
+      controller.connect(
+        "notify::backend",
+        (controller: OfflineUpdateController) => {
+          controller
+            .getPackagesToUpdate()
+            .then((packages) => {
+              indicator.showPackages(packages);
+            })
+            .catch((error: unknown) => {
+              log.error("Failed to get packages", error);
+            });
+        },
+      ),
+    );
 
     log.log("Monitoring for low-power condition");
     const powerMonitor = Gio.PowerProfileMonitor.dup_default();

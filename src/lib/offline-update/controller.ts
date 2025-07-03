@@ -8,7 +8,7 @@ import GObject from "gi://GObject";
 
 import { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js";
 
-import { OfflineUpdateBackend } from "./backend.js";
+import { OfflineUpdateBackend, Package } from "./backend.js";
 
 /**
  * A class to control offline updates.
@@ -56,6 +56,19 @@ export const OfflineUpdateController = GObject.registerClass(
       } else {
         this._log.log("No backend for offline update");
         return false;
+      }
+    }
+
+    /**
+     * Get all packages that will be updated.
+     *
+     * @returns A list of packages, or `null` if there's no pending update.
+     */
+    async getPackagesToUpdate(): Promise<Package[] | null> {
+      if (this._backend) {
+        return this._backend.packages();
+      } else {
+        return Promise.resolve(null);
       }
     }
   },

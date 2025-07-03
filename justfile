@@ -32,7 +32,7 @@ clean:
 # Build the extension
 build:
     {{tsc}} --project ./tsconfig.pack.json
-    cp -t build metadata.json
+    cp -t build metadata.json stylesheet.css
 
 # Extract messages for translation
 pot:
