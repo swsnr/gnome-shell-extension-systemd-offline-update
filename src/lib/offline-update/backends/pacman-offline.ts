@@ -23,7 +23,8 @@ const IMPORTANT_PACKAGES: ReadonlySet<string> = new Set([
 ]);
 
 const parsePackage = (line: string): Package => {
-  const match = /^([^ ]+) ([^ ]+) -> ([^ ]+)$/.exec(line);
+  // Parse: smbclient 2:4.22.2-1 -> 2:4.22.3-1 [ignored]
+  const match = /^([^ ]+) ([^ ]+) -> ([^ ]+)(?: .+)?$/.exec(line);
   if (!match) {
     throw new Error(`Failed to parse version from line: ${line}`);
   }
