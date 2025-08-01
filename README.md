@@ -7,12 +7,7 @@ Show a GNOME shell indicator for pending [systemd offline updates][1], via e.g. 
 
 ## Install
 
-Install from [extensions.gnome.org](https://extensions.gnome.org/extension/8245/systemd-offline-update-indicator/).
-
-**Note**: The mandatory review process for extensions.gnome.org can sometimes delay releases for a few days, in particular if the release contains larger changes.
-Please do be patient, or use release file (see below) as an alternative.
-
-Or download the latest ZIP file from [releases](https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update/releases),
+Download the latest ZIP file from [releases](https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update/releases),
 and install with
 
 ```console
@@ -20,6 +15,9 @@ $ gnome-extensions install systemd-offline-update@swsnr.de.shell-extension.zip
 ```
 
 Release artifacts are signed with my Codeberg SSH keys from <https://codeberg.org/swsnr.keys>.
+
+Alternatively, install from [extensions.gnome.org](https://extensions.gnome.org/extension/8245/systemd-offline-update-indicator/), but note that releases on extensions.gnome.org may be delayed or outright rejected by its mandatory review process.
+The author of this extension does not use extensions.gnome.org.
 
 ## License
 
