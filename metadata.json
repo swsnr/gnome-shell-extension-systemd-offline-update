@@ -3,7 +3,7 @@
   "uuid": "systemd-offline-update@swsnr.de",
   "gettext-domain": "systemd-offline-update@swsnr.de",
   "description": "Show an indicator for pending systemd offline updates.",
-  "version-name": "48.11",
+  "version-name": "48.12",
   "url": "https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update",
   "shell-version": ["48"]
 }
