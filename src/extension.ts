@@ -88,25 +88,38 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
       ),
     );
 
+    const cancelIfLowPower = (monitor: Gio.PowerProfileMonitor): void => {
+      if (monitor.get_power_saver_enabled()) {
+        log.log("Cancelling pending update due to low-power");
+        controller
+          .cancelPendingUpdate()
+          .then((cancelled) => {
+            if (cancelled) {
+              notifications.notifyUpdateCancelledOnLowPower();
+            }
+          })
+          .catch((error: unknown) => {
+            notifications.notifyCancelFailed(error);
+          });
+      }
+    };
+
     log.log("Monitoring for low-power condition");
     const powerMonitor = Gio.PowerProfileMonitor.dup_default();
     destroyer.addSignal(
       powerMonitor,
-      powerMonitor.connect(
-        "notify::power-saver-enabled",
-        (monitor: Gio.PowerProfileMonitor) => {
-          if (monitor.get_power_saver_enabled()) {
-            log.log("Cancelling pending update due to low-power");
-            controller
-              .cancelPendingUpdate()
-              .then((cancelled) => {
-                if (cancelled) {
-                  notifications.notifyUpdateCancelledOnLowPower();
-                }
-              })
-              .catch((error: unknown) => {
-                notifications.notifyCancelFailed(error);
-              });
+      powerMonitor.connect("notify::power-saver-enabled", cancelIfLowPower),
+    );
+    // If an offline becomes available while in powersave mode cancel it again
+    destroyer.addSignal(
+      controller,
+      controller.connect(
+        "notify::backend",
+        (controller: OfflineUpdateController) => {
+          if (controller.backend !== null) {
+            setTimeout(() => {
+              cancelIfLowPower(powerMonitor);
+            }, 3000);
           }
         },
       ),
