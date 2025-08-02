@@ -5,6 +5,8 @@
 // See https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
 import GObject from "gi://GObject";
+import GLib from "gi://GLib";
+
 import {
   Extension,
   type ConsoleLike,
@@ -80,6 +82,21 @@ export class Destroyer {
     this.add({
       destroy() {
         obj.disconnect(handlerId);
+      },
+    });
+  }
+
+  /**
+   * Track a timeout for clearing upon destruction.
+   *
+   * Clear the timeout referred to by `source` when this destroyer gets destroyed.
+   *
+   * @param source The GLib source representing the timeout
+   */
+  addTimeout(source: GLib.Source) {
+    this.add({
+      destroy() {
+        clearTimeout(source);
       },
     });
   }

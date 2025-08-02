@@ -117,9 +117,11 @@ export default class SystemdOfflineUpdateExtension extends DestructibleExtension
         "notify::backend",
         (controller: OfflineUpdateController) => {
           if (controller.backend !== null) {
-            setTimeout(() => {
-              cancelIfLowPower(powerMonitor);
-            }, 3000);
+            destroyer.addTimeout(
+              setTimeout(() => {
+                cancelIfLowPower(powerMonitor);
+              }, 3000),
+            );
           }
         },
       ),
