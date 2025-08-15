@@ -12,14 +12,22 @@ import { ConsoleLike } from "resource:///org/gnome/shell/extensions/extension.js
 import { OfflineUpdateBackend, Package } from "../backend.js";
 
 const IMPORTANT_PACKAGES: ReadonlySet<string> = new Set([
+  // Mark kernel, initrd generator, and systemd as important, because these
+  // might regress and require some attention.
   "linux",
   "linux-lts",
   "linux-zen",
   "linux-hardened",
   "mkinitcpio",
   "systemd",
+  // Mark Gnome as important because major Gnome updates affect extensions, and
+  // might ship cool new features
   "gdm",
   "gnome-shell",
+  // Mark browsers as important, because these might need to updated ASAP to
+  // address security issues.
+  "firefox",
+  "vivaldi",
 ]);
 
 const parsePackage = (line: string): Package => {
