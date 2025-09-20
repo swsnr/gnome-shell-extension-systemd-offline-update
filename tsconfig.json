@@ -4,5 +4,5 @@
     "noEmit": true,
     "checkJs": true
   },
-  "include": ["eslint.config.mjs", "gnome-shell.d.ts", "src/**/*.ts"]
+  "include": ["gnome-shell.d.ts", "src/**/*.ts"]
 }
