@@ -5,5 +5,5 @@
   "description": "Show an indicator for pending systemd offline updates.",
   "version-name": "48.13",
   "url": "https://codeberg.org/swsnr/gnome-shell-extension-systemd-offline-update",
-  "shell-version": ["48"]
+  "shell-version": ["49"]
 }
