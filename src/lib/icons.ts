@@ -43,13 +43,6 @@ export class IconThemeLoader {
       16,
       St.IconLookupFlags.FORCE_SVG,
     );
-    if (icon === null) {
-      throw new Error(`Icon ${name} not found`);
-    }
-    const iconFilename = icon.get_filename();
-    if (iconFilename === null) {
-      throw new Error(`Icon ${name} had no file`);
-    }
-    return Gio.FileIcon.new(Gio.File.new_for_path(iconFilename));
+    return Gio.FileIcon.new(Gio.File.new_for_path(icon.get_filename()));
   }
 }

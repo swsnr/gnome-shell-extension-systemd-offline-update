@@ -4,9 +4,10 @@
 //
 // See https://interoperable-europe.ec.europa.eu/collection/eupl/eupl-text-eupl-12
 
+// @ts-check
+
 import eslint from "@eslint/js";
 import { defineConfig } from "eslint/config";
-
 import tseslint from "typescript-eslint";
 
 export default defineConfig(
@@ -51,6 +52,6 @@ export default defineConfig(
     },
   },
   {
-    ignores: ["build/", "node_modules/", "eslint.config.mjs"],
+    ignores: ["build/", "node_modules/"],
   },
 );
