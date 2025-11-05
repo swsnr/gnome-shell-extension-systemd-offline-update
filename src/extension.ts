@@ -29,9 +29,7 @@ Gio._promisify(Gio.Subprocess.prototype, "communicate_utf8_async");
 export default class SystemdOfflineUpdateExtension extends DestructibleExtension {
   override initialize(destroyer: Destroyer) {
     const log = this.getLogger();
-    const iconLoader = new IconThemeLoader(
-      this.metadata.dir.get_child("icons"),
-    );
+    const iconLoader = new IconThemeLoader(this.dir.get_child("icons"));
 
     const notifications = new Notifications(log, iconLoader);
     const controller = new OfflineUpdateController(log);

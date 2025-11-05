@@ -8,7 +8,7 @@ import Gio from "gi://Gio";
 import St from "gi://St";
 
 /**
- * Load icons from a directory following the icon theme specificion.
+ * Load icons from a directory following the icon theme specification.
  */
 export class IconThemeLoader {
   /**
@@ -43,6 +43,13 @@ export class IconThemeLoader {
       16,
       St.IconLookupFlags.FORCE_SVG,
     );
-    return Gio.FileIcon.new(Gio.File.new_for_path(icon.get_filename()));
+    if (icon == null) {
+      throw new Error(`Icon ${name} not found`);
+    }
+    const iconFileName = icon.get_filename();
+    if (iconFileName == null) {
+      throw new Error(`Icon ${name} not backed by a file`);
+    }
+    return Gio.FileIcon.new(Gio.File.new_for_path(iconFileName));
   }
 }
